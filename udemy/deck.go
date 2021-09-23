@@ -1,6 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+	"strings"
+	"time"
+)
 
 type Deck []string
 
@@ -22,8 +27,25 @@ func NewDeck() Deck {
 	return deck
 }
 
+func (deck Deck) shuffle() {
+	rand.Seed(time.Now().UTC().UnixNano())
+	l := len(deck)
+	for i := range deck {
+		newi := rand.Intn(l - 1)
+		deck[i], deck[newi] = deck[newi], deck[i]
+	}
+}
+
 func (deck Deck) Draw() string {
 	return deck[0]
+}
+
+func deal(deck Deck, size int) (Deck, Deck) {
+	return deck[:size], deck[size:]
+}
+
+func (deck Deck) toString() string {
+	return strings.Join([]string(deck), ",")
 }
 
 func allCards() []string {

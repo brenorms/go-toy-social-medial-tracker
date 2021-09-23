@@ -6,6 +6,9 @@ import (
 
 func main() {
 	deck := NewDeck()
-	deck.Print()
-	fmt.Println(deck.Draw())
+	fmt.Println(deck.toString())
+	deck.shuffle()
+	fmt.Println(deck.toString())
+	deck.shuffle()
+	fmt.Println(deck.toString())
 }
