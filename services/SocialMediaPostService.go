@@ -9,7 +9,7 @@ import (
 )
 
 type SocialMediaPostService struct {
-	mockRepo []entities.SocialMediaPost
+	mockRepo  []entities.SocialMediaPost
 	currentId int
 }
 
