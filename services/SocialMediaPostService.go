@@ -5,12 +5,14 @@ import (
 	"strconv"
 
 	"github.com/brenorms/go-toy-social-medial-tracker/entities"
+	"github.com/brenorms/go-toy-social-medial-tracker/repositories"
 	"github.com/gin-gonic/gin"
 )
 
 type SocialMediaPostService struct {
 	mockRepo  []entities.SocialMediaPost
 	currentId int
+	repo      repositories.ISocialMediaPostRepository
 }
 
 func NewSocialMediaPostService() ISocialMediaPostService {
@@ -22,10 +24,20 @@ func NewSocialMediaPostService() ISocialMediaPostService {
 			{Id: 4, Title: "Video 32", Views: 55, Likes: 21},
 		},
 		currentId: 5,
+		repo:      repositories.NewSocialMediaPostRepository(),
 	}
 }
 func (s SocialMediaPostService) List(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, s.mockRepo)
+	// c.IndentedJSON(http.StatusOK, s.mockRepo)
+
+	arr, err := s.repo.List()
+
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "error listing posts"})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, arr)
 }
 
 func (s SocialMediaPostService) GetById(c *gin.Context) {
