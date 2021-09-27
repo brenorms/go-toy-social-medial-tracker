@@ -17,6 +17,8 @@ func main() {
 	router.GET("/socialMediaPosts", socialMediaService.List)
 	router.GET("/socialMediaPosts/:id", socialMediaService.GetById)
 	router.POST("/socialMediaPosts", socialMediaService.Create)
+	router.PUT("/socialMediaPosts/:id", socialMediaService.Update)
+	router.DELETE("/socialMediaPosts/:id", socialMediaService.Delete)
 
 	router.Run("localhost:8182")
 }

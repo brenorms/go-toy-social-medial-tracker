@@ -69,3 +69,41 @@ func (r SocialMediaPostRepository) Create(post *entities.SocialMediaPost) error 
 
 	return nil
 }
+
+func (r SocialMediaPostRepository) Update(post entities.SocialMediaPost) error {
+	db, err := GetDb()
+	if err != nil {
+		return err
+	}
+	query := sq.Update("socialmediapost").SetMap(map[string]interface{}{"title": post.Title, "views": post.Views, "likes": post.Likes}).Where(sq.Eq{"id": post.Id})
+	sql, args, err := query.ToSql()
+	if err != nil {
+		return err
+	}
+	res := db.MustExec(sql, args...)
+	id, err := res.LastInsertId()
+	if err != nil {
+		return err
+	}
+	post.Id = int(id)
+
+	return nil
+}
+
+func (r SocialMediaPostRepository) Delete(id int) error {
+	db, err := GetDb()
+	if err != nil {
+		return err
+	}
+	query := sq.Delete("socialmediapost").Where(sq.Eq{"id": id})
+	sql, args, err := query.ToSql()
+	if err != nil {
+		return err
+	}
+	res := db.MustExec(sql, args...)
+	_, err = res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	return nil
+}

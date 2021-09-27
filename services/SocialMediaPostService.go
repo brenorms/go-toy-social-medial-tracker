@@ -10,21 +10,12 @@ import (
 )
 
 type SocialMediaPostService struct {
-	mockRepo  []entities.SocialMediaPost
-	currentId int
-	repo      repositories.ISocialMediaPostRepository
+	repo repositories.ISocialMediaPostRepository
 }
 
 func NewSocialMediaPostService() ISocialMediaPostService {
 	return SocialMediaPostService{
-		mockRepo: []entities.SocialMediaPost{
-			{Id: 1, Title: "Video 01", Views: 101, Likes: 9},
-			{Id: 2, Title: "Video 15", Views: 1501, Likes: 95},
-			{Id: 3, Title: "Video 18", Views: 15148, Likes: 907},
-			{Id: 4, Title: "Video 32", Views: 55, Likes: 21},
-		},
-		currentId: 5,
-		repo:      repositories.NewSocialMediaPostRepository(),
+		repo: repositories.NewSocialMediaPostRepository(),
 	}
 }
 func (s SocialMediaPostService) List(c *gin.Context) {
@@ -49,7 +40,7 @@ func (s SocialMediaPostService) GetById(c *gin.Context) {
 	}
 
 	post, err := s.repo.GetById(id)
-	if err != nil{
+	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "post not found"})
 		return
 	}
@@ -65,10 +56,46 @@ func (s SocialMediaPostService) Create(c *gin.Context) {
 	var newPost entities.SocialMediaPost
 
 	if err := c.BindJSON(&newPost); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "could not create"})
 		return
 	}
 
-	s.repo.Create(&newPost)
+	if err := s.repo.Create(&newPost); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "could not create"})
+		return
+	}
 
 	c.IndentedJSON(http.StatusCreated, newPost)
+}
+
+func (s SocialMediaPostService) Update(c *gin.Context) {
+	var newPost entities.SocialMediaPost
+
+	if err := c.BindJSON(&newPost); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "could not update"})
+		return
+	}
+
+	if err := s.repo.Update(newPost); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "could not update"})
+		return
+	}
+
+	c.IndentedJSON(http.StatusCreated, newPost)
+}
+
+func (s SocialMediaPostService) Delete(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "could not delete"})
+		return
+	}
+
+	err = s.repo.Delete(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "could not delete"})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, gin.H{})
 }
