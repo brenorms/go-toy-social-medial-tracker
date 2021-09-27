@@ -36,17 +36,36 @@ func (r SocialMediaPostRepository) GetById(id int) (entities.SocialMediaPost, er
 	if err != nil {
 		return entities.SocialMediaPost{}, err
 	}
-	query := sq.Select("*").From("socialmediaposts").Where(sq.Eq{"id": id})
+	query := sq.Select("*").From("socialmediapost").Where(sq.Eq{"id": id})
 	sql, args, err := query.ToSql()
 	if err != nil {
 		return entities.SocialMediaPost{}, err
 	}
 	var post entities.SocialMediaPost
-	db.Get(&post, sql, args)
+	err = db.Get(&post, sql, args...)
+	if err != nil {
+		return entities.SocialMediaPost{}, err
+	}
 
 	return post, nil
 }
 
-func (r SocialMediaPostRepository) Create(post entities.SocialMediaPost) error {
+func (r SocialMediaPostRepository) Create(post *entities.SocialMediaPost) error {
+	db, err := GetDb()
+	if err != nil {
+		return err
+	}
+	query := sq.Insert("socialmediapost").Columns("title", "views", "likes").Values(post.Title, post.Views, post.Likes)
+	sql, args, err := query.ToSql()
+	if err != nil {
+		return err
+	}
+	res := db.MustExec(sql, args...)
+	id, err := res.LastInsertId()
+	if err != nil {
+		return err
+	}
+	post.Id = int(id)
+
 	return nil
 }

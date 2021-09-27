@@ -48,11 +48,14 @@ func (s SocialMediaPostService) GetById(c *gin.Context) {
 		return
 	}
 
-	for _, post := range s.mockRepo {
-		if post.Id == id {
-			c.IndentedJSON(http.StatusOK, post)
-			return
-		}
+	post, err := s.repo.GetById(id)
+	if err != nil{
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "post not found"})
+		return
+	}
+	if post.Id == id {
+		c.IndentedJSON(http.StatusOK, post)
+		return
 	}
 
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "post not found"})
@@ -65,9 +68,7 @@ func (s SocialMediaPostService) Create(c *gin.Context) {
 		return
 	}
 
-	newPost.Id = s.currentId
-	s.currentId += 1
+	s.repo.Create(&newPost)
 
-	s.mockRepo = append(s.mockRepo, newPost)
 	c.IndentedJSON(http.StatusCreated, newPost)
 }
